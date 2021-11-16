@@ -35,6 +35,17 @@ func (app *application) getAllMovies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+func (app *application) getAllGenres(w http.ResponseWriter, r *http.Request) {
+	genres, err := app.models.DB.GetAllGenres()
+	if err != nil {
+		app.errorJSON(w, err)
+	}
+	err = app.writeJSON(w, http.StatusOK, genres, "genres")
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+}
 
 func (app *application) DeleteMovie(w http.ResponseWriter, r *http.Request) {
 
