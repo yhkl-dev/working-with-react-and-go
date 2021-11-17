@@ -1,5 +1,4 @@
 import React, { Fragment, useState, useEffect } from 'react'
-import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
 
 
@@ -31,13 +30,11 @@ export default function Genres() {
   return (
     <Fragment>
       <h2>Genres</h2>
-      <ul>
+      <div className="list-group">
         {data.genres.map((m) => (
-          <li key={m.id}>
-            <Link to={`/movie/${m.id}`} > {m.genre_name}</Link>
-          </li>
+          <Link className="list-group-item list-group-item-action" key={m.id} to={{ pathname: `/genre/${m.id}`, search: `genreName=${m.genre_name}` }} > {m.genre_name}</Link>
         ))}
-      </ul>
+      </div>
     </Fragment >
   )
 }

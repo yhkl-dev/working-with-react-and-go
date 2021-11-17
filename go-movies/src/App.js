@@ -5,6 +5,7 @@ import Home from "./components/Home";
 import Admin from "./components/Admin";
 import OneMovie from "./components/OneMovie";
 import Genres from "./components/Genres";
+import OneGenre from "./components/OneGenre";
 
 
 export default function App() {
@@ -43,6 +44,7 @@ export default function App() {
 
               <Route path="/movies" element={<Movies />} />
               <Route exact path="/movies/:id" element={<OneMovie />} />
+              <Route exact path="/genre/:id" element={<OneGenre />} />
 
               <Route exact path="/genres" element={<Genres />} />
               <Route path="/admin" element={<Admin />} />

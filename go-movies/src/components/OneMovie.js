@@ -27,7 +27,7 @@ export default function OneMovie(props) {
     fetchEmployees();
     return () => {
     }
-  }, [])
+  }, [id])
 
   if (data.movie.genres) {
     data.movie.genres = Object.values(data.movie.genres);
