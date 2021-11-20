@@ -7,10 +7,11 @@ import OneMovie from "./components/OneMovie";
 import Genres from "./components/Genres";
 import OneGenre from "./components/OneGenre";
 import EditMovie from "./components/EditMovie";
+import "./index.css"
 
 export default function App() {
   return (
-    <Router>
+    <Router className="app">
       <div className="container">
         <div className="row">
           <h1 className="mt-3">
