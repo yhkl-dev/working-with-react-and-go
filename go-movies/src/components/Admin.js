@@ -1,7 +1,9 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router";
 
-export default function Admin() {
+export default function Admin({ jwt }) {
+  const navigate = useNavigate();
   const defaultData = {
     movies: [],
     idLoaded: false,
@@ -24,10 +26,14 @@ export default function Admin() {
     })
   }
   useEffect(() => {
+    if (jwt === "") {
+      navigate("/login");
+      return;
+    }
     fetchMovie()
     return () => {
     }
-  }, [])
+  }, [jwt, navigate])
 
   if (data.error) {
     return <div>Error: {data.error.message}</div>
@@ -38,6 +44,7 @@ export default function Admin() {
   return (
     <Fragment>
       <h2>Manage Catalogue</h2>
+      <hr></hr>
       <div className="list-group">
         {data.movies.map((m) => (
           <Link className="list-group-item list-group-item-action" key={m.id} to={`/admin/movie/${m.id}`}>{m.title}</Link>

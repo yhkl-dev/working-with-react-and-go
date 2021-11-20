@@ -3,14 +3,21 @@ import { Input, TextInput } from './form-components/input'
 import { Select } from './form-components/select'
 import { useParams } from 'react-router'
 import { useNavigate } from 'react-router-dom'
-import { Alert } from './ui-component/Altert'
+import { Alert } from './ui-component/Alert'
 import { Link } from 'react-router-dom'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 import "./EditMovie.css"
 
-export default function EditMovie() {
+const defaultAlert = {
+  type: "d-none",
+  message: "",
+}
+
+export default function EditMovie({ jwt }) {
   const { id } = useParams();
+  const [errorInfo, seterrorInfo] = useState([]);
+  const [alertInfo, setalertInfo] = useState(defaultAlert);
   let navigate = useNavigate()
   const defaultData = {
     movie: {
@@ -24,7 +31,6 @@ export default function EditMovie() {
     },
     isLoaded: false,
     error: null,
-    errors: [],
     alert: {
       type: "d-none",
       message: "",
@@ -49,7 +55,6 @@ export default function EditMovie() {
       },
       isLoaded: true,
       error: null,
-      errors: [],
       alert: {
         type: "d-none",
         message: "",
@@ -65,28 +70,22 @@ export default function EditMovie() {
     if (data.movie.title === "") {
       errors.push("title");
     }
-    setData((prevState) => ({
-      movie: {
-        ...prevState.movie,
-      },
-      isLoaded: true,
-      error: null,
-      errors: errors,
-      alert: {
-        type: "d-none",
-        message: "",
-      }
-    }))
+    seterrorInfo(errors);
 
-    if (data.errors.length > 0) {
+    if (errorInfo.length > 0) {
       return false;
     }
 
     const formData = new FormData(event.target);
     const payload = Object.fromEntries(formData.entries());
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", "Bearer " + jwt);
+
     const requestOptions = {
       method: 'POST',
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      headers: myHeaders
     }
     editMovie(requestOptions);
   }
@@ -95,19 +94,9 @@ export default function EditMovie() {
     const response = await fetch("http://localhost:4000/v1/admin/editmovie", requestOptions)
     const result = await response.json(response);
     if (result.error) {
-      setData({
-        movie: data.movie,
-        alert: { type: "alert-danger", message: result.error.message }, isLoaded: true,
-        error: null,
-        errors: [],
-      })
+      setalertInfo({ type: "alert-danger", message: result.error.message })
     } else {
-      setData({
-        movie: data.movie,
-        alert: { type: "alert-success", message: "Changes Saved" }, isLoaded: true,
-        error: null,
-        errors: [],
-      })
+      setalertInfo({ type: "alert-success", message: "Changes Saved" })
       navigate('/admin')
     }
     console.log(result);
@@ -144,11 +133,10 @@ export default function EditMovie() {
   };
 
   function hasError(key) {
-    return data.errors.indexOf(key) !== -1;
+    return errorInfo.indexOf(key) !== -1;
   }
 
   const confirmDelete = (e) => {
-
     console.log('would delete movie id', data.movie.id)
     confirmAlert({
       title: 'Delete Movie?',
@@ -157,16 +145,20 @@ export default function EditMovie() {
         {
           label: 'Yes',
           onClick: () => {
-            fetch("http://localhost:4000/v1/admin/deletemovie/" + data.movie.id, { method: "GET" })
+            const myheaders = new Headers();
+            myheaders.append("Content-Type", "application/json");
+            myheaders.append("Authorization", "Bearer " + jwt);
+            fetch("http://localhost:4000/v1/admin/deletemovie/" + data.movie.id, { method: "GET", headers: myheaders })
               .then(response => response.json)
               .then((result) => {
                 if (result.error) {
-                  setData({
-                    movie: data.movie,
-                    alert: { type: "alert-danger", message: result.error.message }, isLoaded: true,
-                    error: null,
-                    errors: [],
-                  })
+                  setalertInfo({ type: "alert-danger", message: result.error.message })
+                  // setData({
+                  //   movie: data.movie,
+                  //   alert: { type: "alert-danger", message: result.error.message }, isLoaded: true,
+                  //   error: null,
+                  //   errors: [],
+                  // })
                 } else {
                   navigate('/admin')
                 }
@@ -182,6 +174,10 @@ export default function EditMovie() {
   }
 
   useEffect(() => {
+    if (jwt === "") {
+      navigate("/login");
+      return;
+    }
     const defaultData = {
       movie: {
         id: 0,
@@ -194,7 +190,6 @@ export default function EditMovie() {
       },
       isLoaded: false,
       error: null,
-      errors: [],
       alert: {
         type: "d-none",
         message: "",
@@ -204,12 +199,12 @@ export default function EditMovie() {
       fetchMovies(id);
     } else {
       console.log('id', id)
-      setData({ isLoaded: true, movie: defaultData.movie, errors: defaultData.errors, alert: defaultData.alert })
+      setData({ isLoaded: true, movie: defaultData.movie, errors: errorInfo, alert: alertInfo })
     }
     return () => {
       console.log('cleanup')
     }
-  }, [id])
+  }, [id, jwt, navigate, alertInfo, errorInfo])
 
   if (data.error) {
     return <div>Error: {data.error.message}</div>
