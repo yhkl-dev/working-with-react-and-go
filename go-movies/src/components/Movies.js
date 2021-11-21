@@ -1,55 +1,42 @@
-import React, { Component, Fragment } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-export default class Movies extends Component {
-  state = {
-    movies: [],
-    idLoaded: false,
-    error: null,
-  };
-  componentDidMount() {
-    fetch(`${process.env.REACT_APP_API_URL}/v1/movies`)
-      // .then((response) => response.json())
-      .then((response) => {
-        console.log("status code is", response.status);
-        if (response.status !== 200) {
-          let err = Error;
-          err.message = "Invalid response code: " + response.status
-          this.setState({ error: err });
-        }
-        return response.json()
-      })
-      .then((json) => {
-        this.setState({
-          movies: json.movies,
-          isLoaded: true
-        },
-          (error) => {
-            this.setState({
-              isLoaded: true,
-              error: error,
-            })
-          }
-        )
-      })
-  }
-  render() {
-    const { movies, isLoaded, error } = this.state;
-    if (error) {
-      return <div>Error: {error.message}</div>
+export default function Movies() {
+  const [movies, setMovie] = useState([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function fetchMovies() {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/movies`);
+    if (response.status !== 200) {
+      setError("Invalid response code: " + response.status);
     }
-    else if (!isLoaded) {
-      return <p>Loading...</p>
-    }
-    return (
-      <Fragment>
-        <h2>Choose a movie</h2>
-        <div className="list-group">
-          {movies.map((m) => (
-            <Link className="list-group-item list-group-item-action" key={m.id} to={`/movies/${m.id}`}>{m.title}</Link>
-          ))}
-        </div>
-      </Fragment>
-    )
+
+    const result = await response.json(response);
+    setMovie(result.movies);
+    setIsLoaded(true);
   }
+
+  useEffect(() => {
+    fetchMovies()
+    return () => {
+    }
+  }, [])
+
+  if (error !== null) {
+    return <div>Error: {error}</div>
+  }
+  else if (!isLoaded) {
+    return <p>Loading...</p>
+  }
+  return (
+    <Fragment>
+      <h2>Choose a movie</h2>
+      <div className="list-group">
+        {movies.map((m) => (
+          <Link className="list-group-item list-group-item-action" key={m.id} to={`/movies/${m.id}`}>{m.title}</Link>
+        ))}
+      </div>
+    </Fragment>
+  )
 }

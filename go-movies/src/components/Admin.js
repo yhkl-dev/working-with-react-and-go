@@ -4,26 +4,19 @@ import { useNavigate } from "react-router";
 
 export default function Admin({ jwt }) {
   const navigate = useNavigate();
-  const defaultData = {
-    movies: [],
-    idLoaded: false,
-    error: null,
-  }
-  const [data, setdata] = useState(defaultData);
+  const [movies, setMovies] = useState([])
+  const [error, setError] = useState(null)
+  const [isLoaded, setIsLoaded] = useState(false);
+
   async function fetchMovie() {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/movies`)
     if (response.status !== 200) {
-      let err = Error;
-      err.message = "Invalid response code: " + response.status
-      setdata({ error: err, isLoaded: true });
+      setError("Invalid response code: " + response.status);
       return
     }
     const result = await response.json(response);
-    setdata({
-      movies: result.movies,
-      isLoaded: true,
-      error: null
-    })
+    setMovies(result.movies);
+    setIsLoaded(true);
   }
   useEffect(() => {
     if (jwt === "") {
@@ -35,10 +28,10 @@ export default function Admin({ jwt }) {
     }
   }, [jwt, navigate])
 
-  if (data.error) {
-    return <div>Error: {data.error.message}</div>
+  if (error) {
+    return <div>Error: {error}</div>
   }
-  else if (!data.isLoaded) {
+  else if (!isLoaded) {
     return <p>Loading...</p>
   }
   return (
@@ -46,8 +39,11 @@ export default function Admin({ jwt }) {
       <h2>Manage Catalogue</h2>
       <hr></hr>
       <div className="list-group">
-        {data.movies.map((m) => (
-          <Link className="list-group-item list-group-item-action" key={m.id} to={`/admin/movie/${m.id}`}>{m.title}</Link>
+        {movies.map((m) => (
+          <Link className="list-group-item list-group-item-action"
+            key={m.id} to={`/admin/movie/${m.id}`}>
+            {m.title}
+          </Link>
         ))}
       </div>
     </Fragment>

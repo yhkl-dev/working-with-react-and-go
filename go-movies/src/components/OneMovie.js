@@ -2,53 +2,59 @@ import React, { Fragment, useState, useEffect } from 'react'
 import { useParams } from 'react-router';
 
 
-export default function OneMovie(props) {
+const deaultMovie = {
+  title: "",
+  description: "",
+  runtime: "",
+  mpaa_rating: "",
+  year: "",
+  rating: "",
+  genres: [],
+}
+
+export default function OneMovie() {
   const { id } = useParams()
-  const defaultData = {
-    movie: {
-    },
-    isLoaded: false,
-    error: null,
+  const [movie, setMovie] = useState(deaultMovie);
+  const [error, setError] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  async function fetchMovie(id) {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/movie/` + id);
+    if (response.status !== 200) {
+      setError("Invalid response code: ", response.status)
+      return
+    }
+    const data = await response.json(response);
+    setMovie(data.movie);
+    setIsLoaded(true);
   }
-  const [data, setData] = useState(defaultData)
 
   useEffect(() => {
-    async function fetchEmployees() {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/movie/` + id);
-      if (response.status !== 200) {
-        let err = Error;
-        err.message = "Invalid response code: " + response.status
-        setData({ error: err });
-        return
-      }
-      const data = await response.json(response);
-      setData({ movie: data.movie, isLoaded: true });
-    }
-    fetchEmployees();
+    fetchMovie(id);
     return () => {
     }
   }, [id])
 
-  if (data.movie.genres) {
-    data.movie.genres = Object.values(data.movie.genres);
+  if (movie.genres) {
+    movie.genres = Object.values(movie.genres);
   } else {
-    data.movie.genres = [];
+    movie.genres = [];
   }
 
-  if (data.error) {
-    return <div>Error: {data.error.message}</div>
-  } else if (!data.isLoaded) {
+  if (error !== null) {
+    return <div>Error: {error}</div>
+  } else if (!isLoaded) {
     return <p>Loading...</p>
   } else {
     return (
       <Fragment>
-        <h2>Movie: {data.movie.title} ({data.movie.year})</h2>
+        <h2>Movie: {movie.title} ({movie.year})</h2>
 
         <div className="float-start">
-          <small>Rating: {data.movie.mpaa_rating}</small>
+          <small>Rating: {movie.mpaa_rating}</small>
         </div>
         <div className="float-end">
-          {data.movie.genres.map((m, index) => (
+          {movie.genres.map((m, index) => (
             <span className="badge bg-secondary me-1" key={index}>
               {m}
             </span>
@@ -63,15 +69,15 @@ export default function OneMovie(props) {
           <tbody>
             <tr>
               <td><strong>Title:</strong></td>
-              <td>{data.movie.title}</td>
+              <td>{movie.title}</td>
             </tr>
             <tr>
               <td><strong>Description</strong></td>
-              <td>{data.movie.description}</td>
+              <td>{movie.description}</td>
             </tr>
             <tr>
               <td><strong>Runtime:</strong></td>
-              <td>{data.movie.runtime} minutes</td>
+              <td>{movie.runtime} minutes</td>
             </tr>
           </tbody>
         </table>

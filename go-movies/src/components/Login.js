@@ -1,4 +1,4 @@
-import React, { useState, Fragment, } from 'react'
+import React, { useState, Fragment } from 'react'
 import { useNavigate } from 'react-router'
 import { Input } from './form-components/input'
 import { Alert } from './ui-component/Alert'
@@ -9,20 +9,16 @@ const defaultData = {
   error: null,
 }
 
-const defaultAlert = {
-  type: "d-done",
-  message: ""
-}
-
 export default function Login({ handleJWTChange }) {
   const [data, setData] = useState(defaultData)
   const [errorInfo, seterrorInfo] = useState([])
-  const [alert, setalert] = useState(defaultAlert)
+  const [alert, setalert] = useState({ type: "d-done", message: "" })
   const navigate = useNavigate();
 
   const handleChange = (event) => {
     let value = event.target.value;
     let name = event.target.name;
+
     setData(
       (prevState) => ({
         ...prevState,
@@ -61,8 +57,6 @@ export default function Login({ handleJWTChange }) {
     if (result.error) {
       setalert({ type: "alert-danger", message: result.error.message });
     } else {
-      console.log(result);
-      // setalert({ type: "alert-success", message: "Login success" });
       handleJWTChange(Object.values(result)[0]);
       window.localStorage.setItem("jwt", JSON.stringify(Object.values(result)[0]));
       navigate("/admin")

@@ -4,18 +4,11 @@ import { Link } from 'react-router-dom';
 import { Input } from './form-components/input';
 
 
-const defaultAlert = {
-  type: "d-done",
-  message: ""
-}
-
-
 export default function GraphQL() {
   const [movies, setmovies] = useState([]);
   const [searchItem, setsearchItem] = useState("");
-  const [loaded, setloaded] = useState(false);
-  const [alert, setalert] = useState(defaultAlert);
-  const [errorInfo, seterrorInfo] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState(null);
 
   async function fetchMovies(payload, queryType) {
     const myHeaders = new Headers();
@@ -26,6 +19,11 @@ export default function GraphQL() {
       headers: myHeaders
     }
     const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/graphql`, requestOptions)
+    if (response.status !== 200) {
+      setError("Invalid response code: ", response.status);
+      setIsLoaded(true);
+      return
+    }
     const result = await response.json(response);
     let theList = queryType === "search" ? Object.values(result.data.search) : Object.values(result.data.list);
     console.log(theList);
@@ -34,7 +32,7 @@ export default function GraphQL() {
     } else {
       setmovies([]);
     }
-    setloaded(true);
+    setIsLoaded(true);
   }
 
   const handleChange = (event) => {
@@ -45,7 +43,6 @@ export default function GraphQL() {
     } else {
       setmovies([]);
     }
-
   }
 
   function performSearch() {
@@ -79,6 +76,12 @@ export default function GraphQL() {
     return () => {
     }
   }, [])
+
+  if (error !== null) {
+    return <div>Error: {error}</div>
+  } else if (!isLoaded) {
+    return <div>Loading...</div>
+  }
   return (
     <Fragment>
       <h2>GraphQL</h2>
