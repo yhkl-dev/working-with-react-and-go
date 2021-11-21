@@ -91,7 +91,7 @@ export default function EditMovie({ jwt }) {
   }
 
   async function editMovie(requestOptions) {
-    const response = await fetch("http://localhost:4000/v1/admin/editmovie", requestOptions)
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/admin/editmovie`, requestOptions)
     const result = await response.json(response);
     if (result.error) {
       setalertInfo({ type: "alert-danger", message: result.error.message })
@@ -103,7 +103,7 @@ export default function EditMovie({ jwt }) {
   }
 
   async function fetchMovies(id) {
-    const response = await fetch("http://localhost:4000/v1/movie/" + id);
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/movie/` + id);
     if (response.status !== 200) {
       let err = Error;
       err.message = "Invalid response code: " + response.status;
@@ -148,7 +148,7 @@ export default function EditMovie({ jwt }) {
             const myheaders = new Headers();
             myheaders.append("Content-Type", "application/json");
             myheaders.append("Authorization", "Bearer " + jwt);
-            fetch("http://localhost:4000/v1/admin/deletemovie/" + data.movie.id, { method: "GET", headers: myheaders })
+            fetch(`${process.env.REACT_APP_API_URL}/v1/admin/deletemovie/` + data.movie.id, { method: "GET", headers: myheaders })
               .then(response => response.json)
               .then((result) => {
                 if (result.error) {

@@ -13,7 +13,7 @@ export default function Genres() {
 
   useEffect(() => {
     async function fetchGenres() {
-      const response = await fetch("http://localhost:4000/v1/genres");
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/genres`);
       if (response.status !== 200) {
         let err = Error;
         err.message = "Invalid response code: " + response.status

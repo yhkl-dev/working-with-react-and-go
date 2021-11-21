@@ -56,7 +56,7 @@ export default function Login({ handleJWTChange }) {
   }
 
   async function signin(requestOptions) {
-    const response = await fetch("http://localhost:4000/v1/signin", requestOptions);
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/signin`, requestOptions);
     const result = await response.json(response);
     if (result.error) {
       setalert({ type: "alert-danger", message: result.error.message });

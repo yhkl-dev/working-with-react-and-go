@@ -9,6 +9,8 @@ import OneGenre from "./components/OneGenre";
 import EditMovie from "./components/EditMovie";
 import { useState } from "react";
 import Login from "./components/Login";
+import GraphQL from "./components/GraphQL";
+import OneMovieGraphQL from "./components/OneMovieGraphQL";
 
 
 export default function App() {
@@ -73,6 +75,9 @@ export default function App() {
                 <li className="list-group-item">
                   <Link to="/genres">Geners</Link>
                 </li>
+                <li className="list-group-item">
+                  <Link to="/graphql">GraphQL</Link>
+                </li>
                 {data.jwt !== "" && (
                   <Fragment>
                     <li className="list-group-item">
@@ -83,9 +88,6 @@ export default function App() {
                     </li>
                   </Fragment>
                 )}
-                <pre>
-                  {JSON.stringify(data, null, 3)}
-                </pre>
               </ul>
             </nav>
           </div>
@@ -94,8 +96,10 @@ export default function App() {
             <Routes>
               <Route path="/movies" element={<Movies />} />
               <Route exact path="/movies/:id" element={<OneMovie />} />
+              <Route exact path="/moviesgraphql/:id" element={<OneMovieGraphQL />} />
               <Route exact path="/genre/:id" element={<OneGenre />} />
               <Route exact path="/genres" element={<Genres />} />
+              <Route exact path="/graphql" element={<GraphQL />} />
               <Route exact path="/login" element={<Login handleJWTChange={handleJWTChange} />} />
               <Route path="/admin" element={<Admin jwt={data.jwt} />} />
               <Route path="/admin/movie/:id" element={<EditMovie jwt={data.jwt} />} />
